@@ -19,7 +19,7 @@ function ops_directory(configFile) {
 
 function cluster_name(configFile) {
     if (configFile.teraslice && configFile.teraslice.name) {
-        return configFile.teraslice.name
+        return configFile.teraslice.name;
     }
 }
 

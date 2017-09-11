@@ -9,7 +9,7 @@ describe('elasticsearch_reader', function() {
     var clientData;
 
     beforeEach(function() {
-        clientData = [{'@timestamp': new Date(), count: 100}, {'@timestamp': new Date(), count: 50}];
+        clientData = [{'@timestamp': new Date(), 'count': 100}, {'@timestamp': new Date(), 'count': 50}];
     });
 
     var context = {
@@ -19,9 +19,9 @@ describe('elasticsearch_reader', function() {
                     client: {
                         count: function() {
                             if (clientData.length > 1) {
-                                return Promise.resolve(clientData.shift())
+                                return Promise.resolve(clientData.shift());
                             }
-                            return Promise.resolve(clientData[0])
+                            return Promise.resolve(clientData[0]);
                         },
                         indices: {
                             getSettings: function() {
@@ -33,12 +33,12 @@ describe('elasticsearch_reader', function() {
                                             }
                                         }
                                     }
-                                })
+                                });
                             }
                         },
                         cluster: {
                             stats: function() {
-                                return Promise.resolve({nodes: {versions: ['2.1.1']}})
+                                return Promise.resolve({nodes: {versions: ['2.1.1']}});
                             }
                         },
                         search: function() {
@@ -46,15 +46,15 @@ describe('elasticsearch_reader', function() {
                                 _shards: {failed: 0},
                                 hits: {
                                     hits: clientData.map(function(obj) {
-                                        return {_source: obj}
+                                        return {_source: obj};
                                     })
                                 }
-                            })
+                            });
                         }
                     }
-                }
+                };
             },
-            getEventEmitter: function(){
+            getEventEmitter: function() {
                 return eventEmitter;
             }
         },
@@ -80,7 +80,6 @@ describe('elasticsearch_reader', function() {
         expect(typeof reader.newSlicer).toEqual('function');
         expect(typeof reader.newReader).toEqual('function');
         expect(typeof reader.schema).toEqual('function');
-
     });
 
     it('schema function returns on object, formatted to be used by convict', function() {
@@ -91,23 +90,19 @@ describe('elasticsearch_reader', function() {
         expect(type).toEqual('[object Object]');
         expect(keys.length).toBeGreaterThan(0);
         expect(schema.size.default).toEqual(5000);
-        expect(schema.interval.default).toEqual('auto')
-
+        expect(schema.interval.default).toEqual('auto');
     });
 
     it('newReader returns a function that queries elasticsearch', function() {
-
         var opConfig = {date_field_name: '@timestamp', size: 50, index: 'someIndex', full_response: true};
         var jobConfig = {lifecycle: 'once'};
 
         var reader = es_reader.newReader(context, opConfig, jobConfig);
 
         expect(typeof reader).toEqual('function');
-
     });
 
     it('newSlicer return a function', function() {
-
         var opConfig = {
             _op: 'elasticsearch_reader',
             time_resolution: 's',
@@ -133,7 +128,6 @@ describe('elasticsearch_reader', function() {
         Promise.resolve(es_reader.newSlicer(context, jobConfig, [], {}, context.logger)).then(function(slicer) {
             expect(typeof slicer[0]).toEqual('function');
         });
-
     });
 
     it('slicers will throw if date_field_name does not exist on docs in the index', function(done) {
@@ -144,22 +138,20 @@ describe('elasticsearch_reader', function() {
             size: 100,
             index: 'someIndex',
             interval: '2hrs',
-            start: "2015-08-25T00:00:00",
-            end: "2015-08-25T00:02:00"
+            start: '2015-08-25T00:00:00',
+            end: '2015-08-25T00:02:00'
         };
         var jobConfig = {jobConfig: {lifecycle: 'once', slicers: 1, operations: [opConfig]}};
 
-        //this is proving that an error occurs and is caught in the catch phrase, not testing directly as it return the stack
+        // this is proving that an error occurs and is caught in the catch phrase, not testing directly as it return the stack
         Promise.resolve(es_reader.newSlicer(context, jobConfig, [], {}, context.logger)).then(function(slicer) {
             Promise.resolve(slicer[0]())
                 .then(function(data) {
                     return slicer[0]();
-                })
-
+                });
         }).catch(function(err) {
-            done()
+            done();
         });
-
     });
 
     it('op_validation makes sure necessary configuration combos work ', function() {
@@ -169,15 +161,14 @@ describe('elasticsearch_reader', function() {
         var otherGoodOP = {subslice_by_key: false, type: 'events-'};
 
         expect(function() {
-            es_reader.op_validation(badOP)
+            es_reader.op_validation(badOP);
         }).toThrowError(errorString);
 
         expect(function() {
-            es_reader.op_validation(goodOP)
+            es_reader.op_validation(goodOP);
         }).not.toThrow();
         expect(function() {
-            es_reader.op_validation(otherGoodOP)
+            es_reader.op_validation(otherGoodOP);
         }).not.toThrow();
-    })
-
+    });
 });

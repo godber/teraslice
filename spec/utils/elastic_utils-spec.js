@@ -22,9 +22,9 @@ describe('elastic_utils', function() {
                     client: {
                         count: function() {
                             if (clientData.length > 1) {
-                                return Promise.resolve(clientData.shift())
+                                return Promise.resolve(clientData.shift());
                             }
-                            return Promise.resolve(clientData[0])
+                            return Promise.resolve(clientData[0]);
                         },
                         indices: {
                             getSettings: function() {
@@ -36,27 +36,27 @@ describe('elastic_utils', function() {
                                             }
                                         }
                                     }
-                                })
+                                });
                             }
                         },
                         cluster: {
                             stats: function() {
-                                return Promise.resolve({nodes: {versions: ['2.1.1']}})
+                                return Promise.resolve({nodes: {versions: ['2.1.1']}});
                             }
                         },
                         search: function() {
                             return Promise.resolve({
                                 hits: {
                                     hits: clientData.map(function(obj) {
-                                        return {_source: obj}
+                                        return {_source: obj};
                                     })
                                 }
-                            })
+                            });
                         }
                     }
-                }
+                };
             },
-            getEventEmitter: function(){
+            getEventEmitter: function() {
                 return eventEmitter;
             }
         },
@@ -74,35 +74,31 @@ describe('elastic_utils', function() {
 
         expect(dateOptions).toBeDefined();
         expect(typeof dateOptions).toEqual('function');
-
     });
 
     it('dateOptions returns a string used for the moment library', function() {
         var dateOptions = utils.dateOptions;
 
         expect(function() {
-            dateOptions('Day')
+            dateOptions('Day');
         }).toThrowError();
 
         expect(dateOptions('day')).toEqual('d');
-
     });
 
     it('dateOptions will throw a new error if not given correct values', function() {
         var dateOptions = utils.dateOptions;
 
         expect(function() {
-            dateOptions('hourz')
+            dateOptions('hourz');
         }).toThrowError();
 
         expect(function() {
-            dateOptions(3)
+            dateOptions(3);
         }).toThrowError();
 
         expect(function() {
-            dateOptions({some: 'obj'})
+            dateOptions({some: 'obj'});
         }).toThrowError();
-
     });
-
 });

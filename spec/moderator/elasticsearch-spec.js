@@ -6,7 +6,6 @@ var events = require('events');
 var eventEmitter = new events.EventEmitter();
 
 describe('elasticsearch moderator', function() {
-
     var logger = {
         error: function() {
         },
@@ -59,7 +58,7 @@ describe('elasticsearch moderator', function() {
                     elasticsearch: {
                         default: {
                             host: [
-                                "127.0.0.1:9200"
+                                '127.0.0.1:9200'
                             ],
                             keepAlive: true,
                             maxRetries: 5,
@@ -75,16 +74,16 @@ describe('elasticsearch moderator', function() {
                     client: {
                         nodes: {
                             info: function() {
-                                return Promise.resolve(nodes)
+                                return Promise.resolve(nodes);
                             },
                             stats: function() {
-                                return Promise.resolve(nodesStats)
+                                return Promise.resolve(nodesStats);
                             }
                         }
                     }
-                }
+                };
             },
-            getEventEmitter: function(){
+            getEventEmitter: function() {
                 return eventEmitter;
             }
         },
@@ -98,12 +97,12 @@ describe('elasticsearch moderator', function() {
         moderator.initialize()
             .then(function(results) {
                 expect(results).toBeTruthy();
-                done()
+                done();
             })
             .catch(function(err) {
                 fail('elasticsearch moderator could not initialize');
-                done()
-            })
+                done();
+            });
     });
 
     it('can checkService', function(done) {
@@ -111,16 +110,16 @@ describe('elasticsearch moderator', function() {
 
         moderator.initialize()
             .then(function() {
-                return moderator.check_service()
+                return moderator.check_service();
             })
             .then(function(results) {
                 expect(results).toEqual({pause: null, resume: [{type: 'elasticsearch', connection: 'default'}]});
-                done()
+                done();
             })
             .catch(function(err) {
                 fail('elasticsearch checkService error occured');
-                done()
-            })
+                done();
+            });
     });
 
     it('can checkConnectionStates', function(done) {
@@ -128,19 +127,19 @@ describe('elasticsearch moderator', function() {
 
         moderator.initialize()
             .then(function() {
-                return moderator.check_service()
+                return moderator.check_service();
             })
             .then(function() {
-                return moderator.checkConnectionStates(['default'])
+                return moderator.checkConnectionStates(['default']);
             })
             .then(function(results) {
                 expect(results).toEqual(true);
-                done()
+                done();
             })
             .catch(function(err) {
                 fail('error with checkConnectionStates test');
-                done()
-            })
+                done();
+            });
     });
 
     it('checkConnectionStates can return connections that need to be paused and resumed', function(done) {
@@ -149,31 +148,30 @@ describe('elasticsearch moderator', function() {
         moderator.initialize()
             .then(function(bool) {
                 expect(bool).toEqual(true);
-                return moderator.check_service()
+                return moderator.check_service();
             })
             .then(function(results) {
-                //state is throttled starting off until it runs check_services, it remains throttled because of queue = 200
+                // state is throttled starting off until it runs check_services, it remains throttled because of queue = 200
                 expect(results).toEqual({pause: null, resume: null});
-                return moderator.checkConnectionStates(['default'])
+                return moderator.checkConnectionStates(['default']);
             })
             .then(function(results) {
                 expect(results).toEqual(false);
-                //reset value to be healthy
+                // reset value to be healthy
                 nodesStats.nodes.default.thread_pool.get.queue = 10;
-                return moderator.check_service()
+                return moderator.check_service();
             })
             .then(function(results) {
                 expect(results).toEqual({pause: null, resume: [{type: 'elasticsearch', connection: 'default'}]});
-                return moderator.checkConnectionStates(['default'])
+                return moderator.checkConnectionStates(['default']);
             })
             .then(function(results) {
                 expect(results).toEqual(true);
-                done()
+                done();
             })
             .catch(function(err) {
                 fail('error with checkConnectionStates test');
-                done()
-            })
+                done();
+            });
     });
-
 });

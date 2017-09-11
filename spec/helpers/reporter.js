@@ -7,5 +7,5 @@ if (process.stdout.isTTY) {
             displayStacktrace: true,
             displayDuration: true
         }
-    }))
+    }));
 }

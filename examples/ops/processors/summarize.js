@@ -40,7 +40,7 @@ function newProcessor(context, opConfig, jobConfig) {
         });
 
         return result;
-    }
+    };
 }
 
 function count_key(collection, key) {
@@ -52,9 +52,9 @@ function count_key(collection, key) {
     }
 }
 
-function schema(){
+function schema() {
     return {
-    }
+    };
 }
 
 module.exports = {

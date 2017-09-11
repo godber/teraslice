@@ -5,7 +5,6 @@ var events = require('events');
 var eventEmitter = new events.EventEmitter();
 
 describe('elasticsearch_bulk', function() {
-
     var context = {
         foundation: {
             getConnection: function() {
@@ -13,9 +12,9 @@ describe('elasticsearch_bulk', function() {
                     client: {
                         count: function() {
                             if (clientData.length > 1) {
-                                return Promise.resolve(clientData.shift())
+                                return Promise.resolve(clientData.shift());
                             }
-                            return Promise.resolve(clientData[0])
+                            return Promise.resolve(clientData[0]);
                         },
                         indices: {
                             getSettings: function() {
@@ -27,30 +26,30 @@ describe('elasticsearch_bulk', function() {
                                             }
                                         }
                                     }
-                                })
+                                });
                             }
                         },
                         cluster: {
                             stats: function() {
-                                return Promise.resolve({nodes: {versions: ['2.1.1']}})
+                                return Promise.resolve({nodes: {versions: ['2.1.1']}});
                             }
                         },
                         search: function() {
                             return Promise.resolve({
                                 hits: {
                                     hits: clientData.map(function(obj) {
-                                        return {_source: obj}
+                                        return {_source: obj};
                                     })
                                 }
-                            })
+                            });
                         },
                         bulk: function(results) {
-                            return Promise.resolve(results)
+                            return Promise.resolve(results);
                         }
                     }
-                }
+                };
             },
-            getEventEmitter: function(){
+            getEventEmitter: function() {
                 return eventEmitter;
             }
         },
@@ -65,12 +64,10 @@ describe('elasticsearch_bulk', function() {
     };
 
     it('has both a newSender and schema method', function() {
-
         expect(es_sender.newProcessor).toBeDefined();
         expect(es_sender.schema).toBeDefined();
         expect(typeof es_sender.newProcessor).toEqual('function');
         expect(typeof es_sender.schema).toEqual('function');
-
     });
 
     it('schema has defaults', function() {
@@ -78,7 +75,6 @@ describe('elasticsearch_bulk', function() {
 
         expect(defaults.size).toBeDefined();
         expect(defaults.size.default).toEqual(500);
-
     });
 
     it('returns a function', function() {
@@ -88,7 +84,6 @@ describe('elasticsearch_bulk', function() {
         var sender = es_sender.newProcessor(context, opConfig, jobConfig);
 
         expect(typeof sender).toEqual('function');
-
     });
 
     it('if no docs, returns a promise of undefined', function(done) {
@@ -96,24 +91,24 @@ describe('elasticsearch_bulk', function() {
         var jobConfig = {};
 
         var sender = es_sender.newProcessor(context, opConfig, jobConfig);
-        sender().then(val => {
+        sender().then((val) => {
             expect(val).toEqual(undefined);
             done();
         });
     });
 
     it('does not split if the size is <= than 2 * size in opConfig', function(done) {
-        //usually each doc is paired with metadata, thus doubling the size of incoming array, hence we double size 
+        // usually each doc is paired with metadata, thus doubling the size of incoming array, hence we double size 
         var opConfig = {size: 50, multisend: false};
         var jobConfig = {};
         var incData = [];
 
         for (var i = 0; i < 50; i++) {
-            incData.push({some: 'data'})
+            incData.push({some: 'data'});
         }
 
         var sender = es_sender.newProcessor(context, opConfig, jobConfig);
-        sender(incData).then(val => {
+        sender(incData).then((val) => {
             expect(val.length).toEqual(1);
             expect(val[0].body.length).toEqual(50);
             done();
@@ -121,19 +116,19 @@ describe('elasticsearch_bulk', function() {
     });
 
     it('it does split if the size is greater than 2 * size in opConfig', function(done) {
-        //usually each doc is paired with metadata, thus doubling the size of incoming array, hence we double size
+        // usually each doc is paired with metadata, thus doubling the size of incoming array, hence we double size
         var opConfig = {size: 50, multisend: false};
         var jobConfig = {};
         var incData = [];
 
         for (var i = 0; i < 120; i++) {
-            incData.push({some: 'data'})
+            incData.push({some: 'data'});
         }
 
         var sender = es_sender.newProcessor(context, opConfig, jobConfig);
-        sender(incData).then(val => {
+        sender(incData).then((val) => {
             expect(val.length).toEqual(2);
-            //length to index is off by 1
+            // length to index is off by 1
             expect(val[0].body.length).toEqual(101);
             expect(val[1].body.length).toEqual(19);
             done();
@@ -141,7 +136,7 @@ describe('elasticsearch_bulk', function() {
     });
 
     it('it splits the array up properly when there are delete operations (not a typical doubling of data)', function(done) {
-        //usually each doc is paired with metadata, thus doubling the size of incoming array, hence we double size
+        // usually each doc is paired with metadata, thus doubling the size of incoming array, hence we double size
         var opConfig = {size: 2, multisend: false};
         var jobConfig = {};
         var incData = [{create: {}}, {some: 'data'}, {update: {}}, {other: 'data'}, {delete: {}}, {index: {}}, {final: 'data'}];
@@ -149,9 +144,9 @@ describe('elasticsearch_bulk', function() {
 
 
         var sender = es_sender.newProcessor(context, opConfig, jobConfig);
-        sender(incData).then(val => {
+        sender(incData).then((val) => {
             expect(val.length).toEqual(2);
-            //length to index is off by 1
+            // length to index is off by 1
 
             expect(JSON.stringify(val[0].body)).toEqual(JSON.stringify(copy.slice(0, 5)));
             expect(JSON.stringify(val[1].body)).toEqual(JSON.stringify(copy.slice(5)));
@@ -160,7 +155,7 @@ describe('elasticsearch_bulk', function() {
     });
 
     it('multisend will send based off of _id ', function(done) {
-        //usually each doc is paired with metadata, thus doubling the size of incoming array, hence we double size
+        // usually each doc is paired with metadata, thus doubling the size of incoming array, hence we double size
         var opConfig = {
             size: 5,
             multisend: true,
@@ -175,9 +170,9 @@ describe('elasticsearch_bulk', function() {
 
 
         var sender = es_sender.newProcessor(context, opConfig, jobConfig);
-        sender(incData).then(val => {
+        sender(incData).then((val) => {
             expect(val.length).toEqual(1);
-            //length to index is off by 1
+            // length to index is off by 1
 
             expect(JSON.stringify(val[0].body)).toEqual(JSON.stringify(copy));
             done();
@@ -185,7 +180,7 @@ describe('elasticsearch_bulk', function() {
     });
 
     it('it can multisend to several places', function(done) {
-        //usually each doc is paired with metadata, thus doubling the size of incoming array, hence we double size
+        // usually each doc is paired with metadata, thus doubling the size of incoming array, hence we double size
         var opConfig = {
             size: 5,
             multisend: true,
@@ -194,17 +189,16 @@ describe('elasticsearch_bulk', function() {
                 'b': 'otherConnection'
             }
         };
-        //multisend_index_append
+        // multisend_index_append
         var jobConfig = {};
         var incData = [{create: {_id: 'abc'}}, {some: 'data'}, {update: {_id: 'abc'}}, {other: 'data'}, {delete: {_id: 'bc'}}, {index: {_id: 'bc'}}, {final: 'data'}];
         var copy = incData.slice();
 
 
         var sender = es_sender.newProcessor(context, opConfig, jobConfig);
-        sender(incData).then(val => {
-
+        sender(incData).then((val) => {
             expect(val.length).toEqual(2);
-            //length to index is off by 1
+            // length to index is off by 1
             expect(JSON.stringify(val[0].body)).toEqual(JSON.stringify(copy.slice(0, 4)));
             expect(JSON.stringify(val[1].body)).toEqual(JSON.stringify(copy.slice(4)));
             done();
@@ -212,7 +206,7 @@ describe('elasticsearch_bulk', function() {
     });
 
     it('multisend_index_append will change outgoing _id ', function(done) {
-        //usually each doc is paired with metadata, thus doubling the size of incoming array, hence we double size
+        // usually each doc is paired with metadata, thus doubling the size of incoming array, hence we double size
         var opConfig = {
             size: 5,
             multisend: true,
@@ -228,9 +222,9 @@ describe('elasticsearch_bulk', function() {
 
 
         var sender = es_sender.newProcessor(context, opConfig, jobConfig);
-        sender(incData).then(val => {
+        sender(incData).then((val) => {
             expect(val.length).toEqual(1);
-            //length to index is off by 1
+            // length to index is off by 1
 
             expect(JSON.stringify(val[0].body)).toEqual(JSON.stringify(copy));
             done();
@@ -266,13 +260,12 @@ describe('elasticsearch_bulk', function() {
         var errorString = 'elasticsearch_bulk connection_map specifies a connection for [connectionZ] but is not found in the system configuration [terafoundation.connectors.elasticsearch]';
 
         expect(function() {
-            es_sender.post_validation(badJob, sysconfig)
+            es_sender.post_validation(badJob, sysconfig);
         }).toThrowError(errorString);
 
         expect(function() {
-            es_sender.post_validation(goodJob, sysconfig)
+            es_sender.post_validation(goodJob, sysconfig);
         }).not.toThrow();
-    })
-
+    });
 });
 

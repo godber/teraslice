@@ -65,15 +65,15 @@ describe('When passed a job without a known connector', function() {
         var jobSpec = {
             'operations': [{
                     '_op': 'elasticsearch_reader',
-                    connection: 'unknown'
+                    'connection': 'unknown'
                 },
                 {
                     '_op': 'noop'
                 }
             ]
         };
-        expect(function () {
-            configValidator.validateConfig(jobSchema, jobSpec)
-        }).toThrowError(/undefined connection/)
+        expect(function() {
+            configValidator.validateConfig(jobSchema, jobSpec);
+        }).toThrowError(/undefined connection/);
     });
 });

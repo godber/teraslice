@@ -5,16 +5,16 @@ var events = require('events');
 var eventEmitter = new events.EventEmitter();
 
 describe('config', function() {
-
     var path = process.cwd() + '/testing_for_teraslice';
 
     function deleteFolder(path) {
         try {
             fs.readdirSync(path).forEach(function(file, index) {
-                var curPath = path + "/" + file;
+                var curPath = path + '/' + file;
                 if (fs.lstatSync(curPath).isDirectory()) {
                     deleteFolder(curPath);
-                } else { // delete file
+                }
+ else { // delete file
                     fs.unlinkSync(curPath);
                 }
             });
@@ -26,39 +26,37 @@ describe('config', function() {
     }
 
     var job = JSON.stringify({
-        "name": "Data Generator",
-        "lifecycle": "once",
-        "analytics": false,
-        "operations": [
+        'name': 'Data Generator',
+        'lifecycle': 'once',
+        'analytics': false,
+        'operations': [
             {
-                "_op": "elasticsearch_data_generator",
-                "size": 5000,
-                "file_path": "/Users/Projects/data.js"
+                '_op': 'elasticsearch_data_generator',
+                'size': 5000,
+                'file_path': '/Users/Projects/data.js'
             },
             {
-                "_op": "elasticsearch_index_selector",
-                "index": "bigdata5",
-                "type": "events"
+                '_op': 'elasticsearch_index_selector',
+                'index': 'bigdata5',
+                'type': 'events'
             },
             {
-                "_op": "elasticsearch_bulk",
-                "size": 5000
+                '_op': 'elasticsearch_bulk',
+                'size': 5000
             }
         ]
     });
 
-    //used for get job
+    // used for get job
     process.env.job = job;
 
     afterAll(function() {
-
-        //remove enviroment variable
+        // remove enviroment variable
         delete process.env.job;
 
         deleteFolder(path);
-
     });
-    
+
     it('getClient returns client with certain defaults', function() {
         var context = {
             foundation: {
@@ -67,9 +65,9 @@ describe('config', function() {
                         client: function() {
                             return config;
                         }
-                    }
+                    };
                 },
-                getEventEmitter: function(){
+                getEventEmitter: function() {
                     return eventEmitter;
                 }
             }
@@ -97,9 +95,8 @@ describe('config', function() {
 
         expect(typeof results3).toEqual('function');
         expect(results3()).toEqual({endpoint: 'thirdConnection', cached: false, type: 'elasticsearch'});
-
     });
-    
+
     it('getOpConfig will fetch the correct opConfig of a job', function() {
         var name = 'myOP';
         var resultsOP = {_op: name, more: 'data'};
@@ -107,9 +104,7 @@ describe('config', function() {
         var results = config.getOpConfig(job, name);
 
         expect(results._op).toEqual(name);
-        expect(JSON.stringify(results)).toEqual(JSON.stringify(resultsOP))
-
-    })
-
+        expect(JSON.stringify(results)).toEqual(JSON.stringify(resultsOP));
+    });
 });
 

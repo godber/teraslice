@@ -11,13 +11,13 @@ describe('elasticsearch moderator', function() {
 
     fakeClusterMaster.on('connection', function(socket) {
         socket.on('moderator:online', function(data) {
-            eventEmitter.emit('moderator:online', data)
+            eventEmitter.emit('moderator:online', data);
         });
         socket.on('moderator:pause_jobs', function(data) {
-            eventEmitter.emit('moderator:pause_jobs', data)
+            eventEmitter.emit('moderator:pause_jobs', data);
         });
         socket.on('moderator:resume_jobs', function(data) {
-            eventEmitter.emit('moderator:resume_jobs', data)
+            eventEmitter.emit('moderator:resume_jobs', data);
         });
     });
 
@@ -26,12 +26,12 @@ describe('elasticsearch moderator', function() {
     function waitForEvent(eventName, fn) {
         return new Promise(function(resolve, reject) {
             eventEmitter.on(eventName, function(data) {
-                resolve(data)
+                resolve(data);
             });
             if (fn) {
                 fn();
             }
-        })
+        });
     }
 
     var registeredProcessEvents = {};
@@ -91,7 +91,7 @@ describe('elasticsearch moderator', function() {
                     elasticsearch: {
                         default: {
                             host: [
-                                "127.0.0.1:9200"
+                                '127.0.0.1:9200'
                             ],
                             keepAlive: true,
                             maxRetries: 5,
@@ -107,19 +107,19 @@ describe('elasticsearch moderator', function() {
                     client: {
                         nodes: {
                             info: function() {
-                                return Promise.resolve(nodes)
+                                return Promise.resolve(nodes);
                             },
                             stats: function() {
-                                return Promise.resolve(nodesStats)
+                                return Promise.resolve(nodesStats);
                             }
                         }
                     }
-                }
+                };
             },
             makeLogger: function() {
-                return logger
+                return logger;
             },
-            getEventEmitter: function(){
+            getEventEmitter: function() {
                 return eventEmitter;
             }
         },
@@ -129,20 +129,20 @@ describe('elasticsearch moderator', function() {
                 assignment: 'moderator'
             },
             send: function(data) {
-                eventEmitter.emit('node:message:processed', data)
+                eventEmitter.emit('node:message:processed', data);
             },
             on: function(key, fn) {
-                registeredProcessEvents[key] = fn
+                registeredProcessEvents[key] = fn;
             }
         }
     };
 
-    //used to make sure the moderator engine has time to run
+    // used to make sure the moderator engine has time to run
     function delayTime() {
         return new Promise(function(resolve, reject) {
             setTimeout(function() {
-                resolve()
-            }, 70)
+                resolve();
+            }, 70);
         });
     }
 
@@ -179,7 +179,7 @@ describe('elasticsearch moderator', function() {
             })
             .then(function(results) {
                 expect(results.canRun).toEqual(true);
-                done()
+                done();
             })
             .catch(function(err) {
                 console.log('Error with connection ok function for the moderator', err);
@@ -196,11 +196,11 @@ describe('elasticsearch moderator', function() {
             .then(function(results) {
                 expect(results).toEqual([{type: 'elasticsearch', connection: 'default'}]);
                 nodesStats.nodes.default.thread_pool.get.queue = 10;
-                return waitForEvent('moderator:resume_jobs')
+                return waitForEvent('moderator:resume_jobs');
             })
             .then(function(results) {
                 expect(results).toEqual([{type: 'elasticsearch', connection: 'default'}]);
-                done()
+                done();
             })
             .catch(function(err) {
                 console.log('Error with pause job test for the moderator', err);
@@ -219,19 +219,18 @@ describe('elasticsearch moderator', function() {
 
         waitForEvent('moderator:online')
             .then(function() {
-                return delayTime()
+                return delayTime();
             })
             .then(function() {
                 return waitForEvent('node:message:processed', checkConnection);
             })
             .then(function(results) {
                 expect(results.canRun).toEqual(false);
-                done()
+                done();
             })
             .catch(function(err) {
                 console.log('Error with connection ok function for the moderator', err);
                 done();
             });
     });
-
 });

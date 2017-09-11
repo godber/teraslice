@@ -5,7 +5,6 @@ var analytics = require('../../lib/utils/analytics');
 var _ = require('lodash');
 
 describe('analytics', function() {
-
     beforeAll(function() {
         jasmine.clock().install();
     });
@@ -15,11 +14,10 @@ describe('analytics', function() {
     });
 
     it('analyze returns a function what captures the time it took to complete a step, data in and data out', function(done) {
-
         var fn = function(data) {
             return new Promise(function(resolve, reject) {
                 setTimeout(function() {
-                    resolve(data)
+                    resolve(data);
                 }, 1000);
             });
         };
@@ -33,7 +31,6 @@ describe('analytics', function() {
         jasmine.clock().tick(1001);
 
         results.then(function(data) {
-
             expect(Array.isArray(data)).toBe(true);
             expect(data[0].some).toEqual('insideData');
             expect(analyticsObj.time.length).toEqual(1);
@@ -58,7 +55,6 @@ describe('analytics', function() {
         expect(results.length).toEqual(2);
         expect(typeof results[0]).toEqual('function');
         expect(results[0].toString()).toEqual(analytics.analyze().toString());
-
     });
 
     it('statsContainer takes in job.operations and returns an object for the number of ops', function() {
@@ -105,7 +101,6 @@ describe('analytics', function() {
         expect(_.flatten(statsObj.size)).toEqual(_.flatten(_.zip(data.size, data2.size)));
         expect(_.flatten(statsObj.time)).toEqual(_.flatten(_.zip(data.time, data2.time)));
         expect(_.flatten(statsObj.memory)).toEqual(_.flatten(_.zip(data.memory, data2.memory)));
-
     });
 
     it('calculateStats takes an array of ints and returns an obj that has the  min, max, and total of ints', function() {
@@ -116,10 +111,8 @@ describe('analytics', function() {
         expect(results).toBeDefined();
         expect(results.max).toEqual(367);
         expect(results.min).toEqual(112);
-        //toFixed returns a string
+        // toFixed returns a string
         expect(results.average).toEqual('265.40');
-
     });
-
 });
 

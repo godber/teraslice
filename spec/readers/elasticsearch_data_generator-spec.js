@@ -3,9 +3,7 @@
 var generator = require('../../lib/readers/elasticsearch_data_generator');
 
 describe('elasticsearch_data_generator', function() {
-
     it('has a schema and newReader method', function() {
-
         expect(generator).toBeDefined();
         expect(generator.newReader).toBeDefined();
         expect(generator.newSlicer).toBeDefined();
@@ -13,7 +11,6 @@ describe('elasticsearch_data_generator', function() {
         expect(typeof generator.newReader).toEqual('function');
         expect(typeof generator.newSlicer).toEqual('function');
         expect(typeof generator.schema).toEqual('function');
-
     });
 
     it('newReader returns a function that produces generated data', function() {
@@ -29,7 +26,6 @@ describe('elasticsearch_data_generator', function() {
         expect(results1.length).toEqual(1);
         expect(results2.length).toEqual(20);
         expect(Object.keys(results1[0]).length).toBeGreaterThan(1);
-
     });
 
     it('slicer in "once" mode will return number based off total size ', function(done) {
@@ -39,7 +35,7 @@ describe('elasticsearch_data_generator', function() {
             readerConfig: opConfig,
             jobConfig: {lifecycle: 'once', operations: [{_op: 'elasticsearch_data_generator', size: 13}, {size: 5}]}
         };
-        //if not specified size defaults to 5000
+        // if not specified size defaults to 5000
         var jobConfig2 = {
             readerConfig: opConfig,
             jobConfig: {
@@ -51,7 +47,6 @@ describe('elasticsearch_data_generator', function() {
 
         Promise.resolve(generator.newSlicer(context, jobConfig1)).then(function(slicer) {
             Promise.resolve(generator.newSlicer(context, jobConfig2)).then(function(slicer2) {
-
                 expect(typeof slicer[0]).toEqual('function');
                 expect(slicer[0]()).toEqual(5);
                 expect(slicer[0]()).toEqual(5);
@@ -62,31 +57,25 @@ describe('elasticsearch_data_generator', function() {
                 expect(slicer2[0]()).toEqual(13);
                 expect(slicer2[0]()).toEqual(null);
 
-                done()
+                done();
             });
-
         });
-
     });
 
     it('slicer in "persistent" mode will continuously produce the same number', function() {
-
         var context = {};
         var opConfig = {size: 550};
         var jobConfig = {readerConfig: opConfig, jobConfig: {lifecycle: 'persistent', operations: [{size: 5}]}};
 
         Promise.resolve(generator.newSlicer(context, jobConfig)).then(function(slicer) {
-
             expect(typeof slicer[0]).toEqual('function');
             expect(slicer[0]()).toEqual(550);
             expect(slicer[0]()).toEqual(550);
             expect(slicer[0]()).toEqual(550);
         });
-
     });
 
     it('data generator will only return one slicer', function() {
-
         var context = {};
         var opConfig = {size: 550};
         var jobConfig = {
@@ -98,7 +87,5 @@ describe('elasticsearch_data_generator', function() {
             expect(typeof slicer[0]).toEqual('function');
             expect(slicer.length).toEqual(1);
         });
-
     });
-
 });
